@@ -1,5 +1,30 @@
 document.addEventListener("DOMContentLoaded", async () => {
+  const logoutbtn = document.querySelector(".logout");
+  logoutbtn.addEventListener("click", () => {
+    logout();
+  });
+  function logout() {
+    console.log("logout");
+    document.cookie = "email=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    window.location.href = "/registration.html";
+  }
+
   const productsContainer = document.getElementById("products");
+
+  const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    console.log(value);
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(";").shift();
+    return null;
+  };
+
+  const email = getCookie("email");
+  console.log("Email from cookie:", email);
+
+  if (!email) {
+    window.location.href = "/registration.html";
+  }
 
   async function fetchProducts() {
     try {
@@ -18,16 +43,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     productsContainer.innerHTML = "";
     products.forEach((product) => {
       const productCard = document.createElement("div");
-      productCard.className = "p-4 bg-gray-800 rounded-lg shadow-md";
+      productCard.className = "relative p-4 bg-gray-800 rounded-lg shadow-md";
 
       productCard.innerHTML = `
- <h3 class="text-xl font-bold mb-2 text-indigo-300">${product.texture}</h3>
+            <div class="h-48 w-40  absolute right-4 rounded-md flex justify-end"><img src="./images/${product.img}" class="h-full w-auto rounded absolute"/></div>
+            <h3 class="text-xl font-bold mb-2 text-indigo-300">${product.texture}</h3>
             <p>Цвет: <span class="text-gray-400">${product.color}</span></p>
             <p>Цена за м²: <span class="text-green-500">${product.price_per_sqm} $</span></p>
             <p>Площадь в упаковке: <span class="text-gray-400">${product.sqm_per_package} м²</span></p>
             <p>Вес упаковки: <span class="text-gray-400">${product.package_weight} кг</span></p>
             <p>Размер плитки: <span class="text-gray-400">${product.tile_size}</span></p>
-            <p class="text-xl font-semibold mt-4">Общая цена: <span class="text-green-500">${product.total_price} $</span></p>
+            <p class="text-xl font-semibold mt-4">Общая цена: <span class="text-green-500">${product.total_price} сум</span></p>
             `;
 
       productsContainer.appendChild(productCard);
@@ -60,11 +86,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       orderCard.className = "p-4 bg-gray-800 rounded-lg shadow-md";
 
       orderCard.innerHTML = `
-              <h3 class="text-xl font-bold mb-2">Заказ #${order.id}</h3>
+              <h3 class="text-xl foordersContainernt-bold mb-2">Заказ #${order.id}</h3>
               <p>Клиент: <span class="text-gray-400">${order.client_name}</span></p>
               <p>Детали заказа: <span class="text-gray-400">${order.order_details}</span></p>
               <p>Размер: <span class="text-gray-400">${order.size_sqm} м²</span></p>
-              <p class="text-xl font-semibold mt-4">Сумма: <span class="text-green-500">${order.total_amount} руб.</span></p>
+              <p class="text-xl font-semibold mt-4">Сумма: <span class="text-green-500">${order.total_amount} сум</span></p>
               <button class="delete-order bg-red-500 text-white p-2 rounded mt-4" data-id="${order.id}">Удалить заказ</button>
           `;
 
@@ -122,6 +148,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (response.ok) {
         alert("Заказ создан");
+        console.log(response);
         fetchOrders(); // Обновляем список заказов
       } else {
         alert("Ошибка при создании заказа");
@@ -161,7 +188,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       clientCard.className = "p-4 bg-gray-800 rounded-lg shadow-md";
 
       clientCard.innerHTML = `
-                <h3 class="text-xl font-bold mb-2">${client.full_name}</h3>
+                <h3 class="text-xl font-bold mb-2">#${client.id} ${client.full_name}</h3>
                 <p>Телефон: <span class="text-gray-400">${client.phone}</span></p>
                 <button class="delete-client bg-red-500 text-white p-2 rounded mt-4" data-id="${client.id}">Удалить клиента</button>
             `;

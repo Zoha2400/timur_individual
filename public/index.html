@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FlexArt Products</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./style.css" />
     <style>
       html {
         scroll-behavior: smooth;
@@ -23,34 +24,37 @@
           <span class="text-pink-400">Flex</span>Art
         </a>
         <div class="flex items-center gap-4">
-          <a
-            class="p-2 transition-colors duration-300 bg-purple-700 rounded-lg hover:bg-pink-600"
-            href="/"
+          <a class="p-2 bg-purple-700 rounded-lg hover:bg-pink-600" href="/"
             >Основная</a
           >
-          <a
-            class="p-2 transition-colors duration-300 rounded-lg hover:bg-indigo-700"
-            href="/employees"
+          <a class="p-2 rounded-lg hover:bg-indigo-700" href="/employees"
             >Рабочие</a
           >
-          <a
-            class="p-2 transition-colors duration-300 rounded-lg hover:bg-indigo-700"
-            href="/clients"
+          <a class="p-2 rounded-lg hover:bg-indigo-700" href="/clients"
             >Клиенты</a
           >
-          <a
-            class="p-2 transition-colors duration-300 rounded-lg hover:bg-indigo-700"
-            href="/orders"
+          <a class="p-2 rounded-lg hover:bg-indigo-700" href="/orders"
             >Заказы</a
           >
+          <button class="p-2 bg-red-500 rounded-lg hover:bg-red-600 logout">
+            Выйти
+          </button>
         </div>
       </nav>
     </header>
     <main class="container flex-grow px-4 py-8 mx-auto">
       <section>
-        <h2 class="mb-4 text-3xl font-bold text-indigo-300 animate-pulse">
-          Доступные продукты
-        </h2>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-3xl font-bold text-indigo-300 animate-pulse">
+            Доступные продукты
+          </h2>
+          <button
+            id="addProductBtn"
+            class="p-2 text-sm font-semibold text-white bg-green-500 rounded-lg hover:bg-green-600"
+          >
+            Добавить продукт
+          </button>
+        </div>
         <div
           id="products"
           class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
@@ -59,6 +63,87 @@
         </div>
       </section>
     </main>
+
+    <!-- Модальное окно для добавления продукта -->
+    <div
+      id="addProductModal"
+      class="fixed inset-0 z-50 flex items-center justify-center hidden bg-gray-900 bg-opacity-75"
+    >
+      <div class="p-6 bg-gray-800 rounded-lg shadow-lg">
+        <h3 class="mb-4 text-xl font-bold text-indigo-300">Добавить продукт</h3>
+        <form id="addProductForm" class="space-y-4">
+          <input
+            type="text"
+            name="texture"
+            placeholder="Текстура"
+            class="w-full p-2 text-gray-100 bg-gray-700 rounded-lg"
+            required
+          />
+          <input
+            type="text"
+            name="color"
+            placeholder="Цвет"
+            class="w-full p-2 text-gray-100 bg-gray-700 rounded-lg"
+            required
+          />
+          <input
+            type="number"
+            step="0.01"
+            name="price_per_sqm"
+            placeholder="Цена за м² ($)"
+            class="w-full p-2 text-gray-100 bg-gray-700 rounded-lg"
+            required
+          />
+          <input
+            type="number"
+            step="0.01"
+            name="sqm_per_package"
+            placeholder="Площадь в упаковке (м²)"
+            class="w-full p-2 text-gray-100 bg-gray-700 rounded-lg"
+            required
+          />
+          <input
+            type="number"
+            step="0.01"
+            name="package_weight"
+            placeholder="Вес упаковки (кг)"
+            class="w-full p-2 text-gray-100 bg-gray-700 rounded-lg"
+            required
+          />
+          <input
+            type="text"
+            name="tile_size"
+            placeholder="Размер плитки"
+            class="w-full p-2 text-gray-100 bg-gray-700 rounded-lg"
+            required
+          />
+
+          <input
+            type="text"
+            name="img_url"
+            placeholder="URL картинки"
+            class="w-full p-2 text-gray-100 bg-gray-700 rounded-lg"
+            required
+          />
+          <div class="flex justify-end gap-4">
+            <button
+              type="button"
+              id="closeModalBtn"
+              class="p-2 bg-red-500 rounded-lg hover:bg-red-600"
+            >
+              Отмена
+            </button>
+            <button
+              type="submit"
+              class="p-2 bg-green-500 rounded-lg hover:bg-green-600"
+            >
+              Сохранить
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <footer class="p-4 text-center bg-gradient-to-r from-gray-800 to-gray-900">
       <p
         class="text-gray-400 transition-colors duration-300 hover:text-indigo-500"
@@ -66,12 +151,136 @@
         &copy; 2024 FlexArt. All rights reserved.
       </p>
     </footer>
+
     <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const footer = document.querySelector("footer");
-        footer.classList.add("mt-auto");
+      document.addEventListener("DOMContentLoaded", async () => {
+        const logoutbtn = document.querySelector(".logout");
+        logoutbtn.addEventListener("click", () => {
+          logout();
+        });
+        function logout() {
+          console.log("logout");
+          document.cookie =
+            "email=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+          window.location.href = "/registration.html";
+        }
+        const getCookie = (name) => {
+          const value = `; ${document.cookie}`;
+          console.log(value);
+          const parts = value.split(`; ${name}=`);
+          if (parts.length === 2) return parts.pop().split(";").shift();
+          return null;
+        };
+
+        const email = getCookie("email");
+        console.log("Email from cookie:", email);
+
+        if (!email) {
+          window.location.href = "/registration.html";
+        }
+
+        const productsContainer = document.getElementById("products");
+        const addProductModal = document.getElementById("addProductModal");
+        const addProductBtn = document.getElementById("addProductBtn");
+        const closeModalBtn = document.getElementById("closeModalBtn");
+        const addProductForm = document.getElementById("addProductForm");
+
+        async function fetchProducts() {
+          try {
+            const response = await fetch("/api/products");
+            if (!response.ok) {
+              throw new Error(`Ошибка: ${response.statusText}`);
+            }
+            const products = await response.json();
+            renderProducts(products);
+          } catch (error) {
+            console.error("Ошибка при загрузке товаров:", error);
+          }
+        }
+
+        async function addProduct(product) {
+          try {
+            const response = await fetch("/api/products", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(product),
+            });
+            if (!response.ok) {
+              throw new Error(`Ошибка: ${response.statusText}`);
+            }
+            await fetchProducts();
+            addProductModal.classList.add("hidden");
+          } catch (error) {
+            console.error("Ошибка при добавлении продукта:", error);
+          }
+        }
+
+        window.deleteProduct = async function deleteProduct(productId) {
+          try {
+            const response = await fetch(`/api/products/${productId}`, {
+              method: "DELETE",
+            });
+            if (!response.ok) {
+              throw new Error(`Ошибка: ${response.statusText}`);
+            }
+            await fetchProducts();
+          } catch (error) {
+            console.error("Ошибка при удалении продукта:", error);
+          }
+        };
+
+        function renderProducts(products) {
+          productsContainer.innerHTML = "";
+          products.forEach((product) => {
+            const productCard = document.createElement("div");
+            productCard.className =
+              "relative p-4 bg-gray-800 rounded-lg shadow-md";
+
+            productCard.innerHTML = `
+              <div class="absolute flex justify-end w-40 h-48 rounded-md right-4">
+                <img src="${product.img}" class="absolute w-auto h-full rounded" />
+              </div>
+              <h3 class="mb-2 text-xl font-bold text-indigo-300">${product.texture}</h3>
+              <p>Цвет: <span class="text-gray-400">${product.color}</span></p>
+              <p>Цена за м²: <span class="text-green-500">${product.price_per_sqm} $</span></p>
+              <p>Площадь в упаковке: <span class="text-gray-400">${product.sqm_per_package} м²</span></p>
+              <p>Вес упаковки: <span class="text-gray-400">${product.package_weight} кг</span></p>
+              <p>Размер плитки: <span class="text-gray-400">${product.tile_size}</span></p>
+              <p class="mt-4 text-xl font-semibold">Общая цена: <span class="text-green-500">${product.total_price} сум</span></p>
+              <button
+                class="absolute p-1 text-sm bg-red-500 rounded-lg top-4 right-4 hover:bg-red-600"
+                onclick="deleteProduct(${product.id})"
+              >
+                Удалить
+              </button>
+            `;
+
+            productsContainer.appendChild(productCard);
+          });
+        }
+
+        addProductBtn.addEventListener("click", () => {
+          addProductModal.classList.remove("hidden");
+        });
+
+        closeModalBtn.addEventListener("click", () => {
+          addProductModal.classList.add("hidden");
+        });
+
+        addProductForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const formData = new FormData(addProductForm);
+          const product = Object.fromEntries(formData.entries());
+          product.price_per_sqm = parseFloat(product.price_per_sqm);
+          product.sqm_per_package = parseFloat(product.sqm_per_package);
+          product.package_weight = parseFloat(product.package_weight);
+          addProduct(product);
+        });
+
+        fetchProducts();
       });
     </script>
   </body>
-  <script src="script.js"></script>
 </html>
